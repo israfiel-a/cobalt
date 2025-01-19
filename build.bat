@@ -3,7 +3,7 @@
 @echo off
 
 echo ---
-echo CobaltOS simple compile script (Unix/Linux).
+echo CobaltOS simple compile script (Windows).
 echo Copyright (c) Israfil Argos 2025
 echo ---
 echo: 
