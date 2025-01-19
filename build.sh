@@ -3,7 +3,7 @@
 #!/bin/bash
 
 echo "---"
-echo "CobaltOS simple compile script."
+echo "CobaltOS simple compile script (Unix/Linux)."
 echo "Copyright (c) Israfil Argos 2025"
 echo "---"
 echo

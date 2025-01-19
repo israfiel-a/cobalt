@@ -69,7 +69,7 @@ main:
     or eax, 1
     mov cr0, eax
 
-    ; We are now in protected mode!
+    ; We are now in protected (32-bit) mode!
 
     hlt
 
