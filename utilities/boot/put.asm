@@ -6,6 +6,10 @@
 ; Copyright (c) 2025 Israfil Argos
 ; This source code is under the AGPLv3.
 
+; Because of the manner in which we use interrupts, these functions
+; are impossible in PM or LM.
+bits 16
+
 ; NEWLINE
 ; since: 0.0.1
 ; A newline/carriage return combo.

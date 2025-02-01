@@ -12,18 +12,25 @@ org 0x7C00 ; Start on the 0x7C00 boundary.
 bits 16    ; Emit 16-bit code.
 
 ; Jump to the program's entrypoint.
-jmp main
+jmp rm_init_protocol
 
-%include "utilities/put.asm"
-%include "utilities/gdt.asm"
+%include "utilities/boot/gdt.asm"
+%include "utilities/boot/a20.asm"
+%include "utilities/boot/put.asm"
 
-; main
+; startup_message
 ; since: 0.0.1
-; The entrypoint of the bootloader. This zeros the registers,
-; prints the load message, and loads the kernel into memory.
+; The message displayed when Cobalt starts to boot in earnest.
+startup_message: db "CobaltOS now loading :)", NULTERM
+
+; rm_init_protocol
+; since: 0.0.1
+; The entrypoint of the bootloader. This does initialization things;
+; loads the GDT and IDT, enables the A20 line, and switches into 32-bit
+; mode.
 ; params:
 ;       none
-main:
+rm_init_protocol:
     ; Set the video mode to VGA textual at a resolution of 720x400
     ; and the standard 16 color pallete.
     xor ah, ah
@@ -62,21 +69,18 @@ main:
     mov sp, 0xFFFF
 
     call install_gdt
+    call enable_a20
 
-    ; Enter Protected mode by flipped the enable flag within
+    ; Enter Protected mode by flipping the enable flag within
     ; control register zero.
     mov eax, cr0
     or eax, 1
     mov cr0, eax
 
-    ; We are now in protected (32-bit) mode!
+bits 32
 
+pm_init_protocol:
     hlt
-
-; startup_message
-; since: 0.0.1
-; The message displayed when Cobalt starts to boot in earnest.
-startup_message: db "CobaltOS now loading :)", NULTERM
 
 times 510-($-$$) db 0 ; Pad the program with zeros up until the final byte.
 dw 0x0AA55            ; Set the final two bytes to the signature BIOS expects.
