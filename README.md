@@ -1,4 +1,4 @@
-![top_banner](./.github/banner.jpg)
+![top_banner](https://github.com/israfiel-a/israfiel-a/blob/main/cobalt-banner.jpg)
 
 ---
 
@@ -20,4 +20,4 @@ In order to build properly, Cobalt needs the following dependencies.
 
 ---
 
-![bottom_banner](./.github/banner.jpg)
+![bottom_banner](https://github.com/israfiel-a/israfiel-a/blob/main/cobalt-banner.jpg)
