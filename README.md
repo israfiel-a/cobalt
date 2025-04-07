@@ -8,13 +8,14 @@ Cobalt is a very small opoerating system built in a mix of NASM assembly and C f
 ---
 
 #### Usage
-If you, for some reason, wish to build this operating system, a build script is provided alongside the code. Simply run the script and you'll be all good with the newest build.
+If you, for some reason, wish to build this operating system, a build script is provided alongside the code. Simply run the script and you'll be all good with the newest build. Note that you require a GCC installation built with x86_64-elf in mind.
 
 ---
 
 #### Dependencies
 In order to build properly, Cobalt needs the following dependencies.
 
+- GCC: The GNU compiler collection. An x86_64-elf cross-compiler is required to compile this project.
 - NASM: The Netwide Assembler. This is the flavor of assembly this project is written in.
 - QEMU: A robust virtual machine service. This is just for running the OS--and any VM software will do.
 
