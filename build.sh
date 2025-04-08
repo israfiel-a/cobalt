@@ -13,7 +13,7 @@ echo "done."
 echo "     See the build/config-output.log for any messages/warnings."
 
 echo -n "Creating boot stub..."
-nasm -f bin -o build/cobalt/bootstub Bootloader/Root.asm
+nasm -f bin -o build/cobalt/bootstub Bootloader.asm
 echo "done."
 
 echo -n "Compiling and linking..."
