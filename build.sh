@@ -26,4 +26,14 @@ if ! cmake --build . --parallel 9 >compile-output.log 2>&1 1>/dev/null; then
 fi
 echo "done."
 
+echo -n "Creating disk image..."
+# 128MB disk image
+dd if=/dev/zero of=cobalt/cobalt.iso bs=1048576 count=128 status=none
+dd if=cobalt/bootstub of=cobalt/cobalt.iso conv=notrunc bs=446 count=1 status=none
+dd if=cobalt/bootstub of=cobalt/cobalt.iso conv=notrunc bs=1 count=2 skip=510 seek=510 status=none
+echo "done."
+
+echo "To run:"
+echo "     qemu-system-x86_64 -drive format=raw,file=./build/cobalt/cobalt.iso"
+
 echo "Thank you."
