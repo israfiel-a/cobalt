@@ -1,3 +1,14 @@
+;
+; Bootloader.asm
+; Since 0.1.0
+; This file contains the 512 bytes of code that is loaded and executed by
+; BIOS on startup. It basically does two things; sets the CPU into protected
+; 32-bit mode, and loads the beginning of the kernel.
+;
+; Copyright (c) 2025 Israfil Argos
+; This file is under the AGPLv3. For information on what this entails, see
+; the attached LICENSE.md file or https://www.gnu.org/licenses/agpl-3.0.en.html.
+;
 [bits 16]
 org 0x7C00
 
