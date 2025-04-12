@@ -1,9 +1,0 @@
-{
-    "files.exclude": {
-        "**/.gitignore": true,
-        "**/build": true,
-        "**/build.sh": true,
-        "**/CMakeLists.txt": true,
-        "**/SECURITY.md": true
-    }
-}
