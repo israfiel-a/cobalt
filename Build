@@ -1,47 +1,16 @@
 #!/bin/bash
 
-#
-# Cobalt Build Script
-# Since 0.1.0
-# Updated 0.1.0
-# This file provides the build method for Cobalt, which includes creating the
-# bootable disk image along with compiling all kernel code.
-#
-# Copyright (c) 2025 Israfil Argos
-# This file is under the AGPLv3. For information on what this entails, see
-# the attached LICENSE.md file or https://www.gnu.org/licenses/agpl-3.0.en.html.
-#
+cmake -B build . --toolchain Toolchain/Toolchain.cmake
+cd build
+cmake --build . --parallel 9
 
-echo
-echo "Build process begun."
+x86_64-elf-objcopy -I elf64-x86-64 -O efi-app-x86-64 ./Cobalt/Cobalt ./Cobalt/BOOTX64.efi
+source ../Toolchain/CreateImage.sh Cobalt
 
-PROJECT_NAME=cobalt
-BUILD_DIRECTORY=./build
-IMAGE_PATH=$BUILD_DIRECTORY/$PROJECT_NAME.img
-PARTITION_IMAGE_PATH=$BUILD_DIRECTORY/partitions.img
-echo "Build environment:"
-echo "    Directory: $BUILD_DIRECTORY"
-echo "    Image location: $IMAGE_PATH"
-echo "    Partition image location: $PARTITION_IMAGE_PATH"
-
-mkdir -p $BUILD_DIRECTORY
-echo "Created output directory."
-
-dd if=/dev/zero of=$IMAGE_PATH bs=512 count=93750 status=none
-echo "Created 48MB OS image file."
-
-parted $IMAGE_PATH -sa minimal mklabel gpt
-parted $IMAGE_PATH -sa minimal mkpart EFI FAT16 2048s 93716s
-parted $IMAGE_PATH -sa minimal toggle 1 boot
-echo "Setup structure of image file."
-
-dd if=/dev/zero of=$PARTITION_IMAGE_PATH bs=512 count=91669 status=none
-mformat -i $PARTITION_IMAGE_PATH -h 32 -t 32 -n 64 -c 1
-echo "Created ~47MB EFI partition image file."
-
-mcopy -i $PARTITION_IMAGE_PATH /path/to/main.efi ::
-dd if=$PARTITION_IMAGE_PATH of=$IMAGE_PATH bs=512 count=91669 seek=2048 conv=notrunc status=none
-echo "Copied UEFI loader to main OS image."
-
-echo "Built. Thank you. :)"
-echo
+if [ "$1" == "run" ]; then
+    sudo qemu-system-x86_64 -machine q35 -m 256 -smp 2 -net none                                \
+        -global driver=cfi.pflash01,property=secure,value=on                                    \
+        -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.4m.fd,readonly=on \
+        -drive if=pflash,format=raw,unit=1,file=/usr/share/edk2/x64/OVMF_VARS.4m.fd             \
+        -drive if=ide,format=raw,file=Cobalt.img
+fi

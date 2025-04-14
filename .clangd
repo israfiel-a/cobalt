@@ -1,0 +1,2 @@
+CompileFlags:
+    Remove: -mabi=ms # Stop Clang from whinging.
