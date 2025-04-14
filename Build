@@ -1,16 +1,61 @@
 #!/bin/bash
 
-cmake -B build . --toolchain Toolchain/Toolchain.cmake
-cd build
-cmake --build . --parallel 9
+####################################################################
+## PROJECT BUILD FILE
+## SINCE 0.1.0
+## UPDATED 0.1.0
+## This file contains the build script for entirely assembling the
+## OS, both building and optionally running.
+##
+## Copyright (c) 2025 Israfil Argos
+## This file is under the AGPLv3. For information on what that 
+## entails, see the attached LICENSE.md file or 
+## https://www.gnu.org/licenses/agpl-3.0.en.html.
+####################################################################
 
-x86_64-elf-objcopy -I elf64-x86-64 -O efi-app-x86-64 ./Cobalt/Cobalt ./Cobalt/BOOTX64.efi
-source ../Toolchain/CreateImage.sh Cobalt
+echo # Begin with a newline to better distinguish from CMD.
 
+# Configure and build via CMake, with 9 threads allocated for work.
+cmake -B build . --toolchain Toolchain/Toolchain.cmake             \
+    --no-warn-unused-cli 1>/dev/null
+cd build && cmake --build . --parallel 9 1>/dev/null
+echo "Compiled via CMake."
+
+# Copy the executable produced by CMake into an EFI-compatible boot
+# file.
+cd Cobalt
+x86_64-elf-objcopy -I elf64-x86-64 -O efi-app-x86-64 Cobalt        \
+    BOOTX64.efi
+echo "Translated ELF binary into EFI PE."
+
+####################################################################
+## CREATE BOOT IMAGE
+####################################################################
+dd if=/dev/zero of=Cobalt.img bs=1k count=1440 status=none
+echo Created boot image file. 
+
+mformat -i Cobalt.img -f 1440 ::
+mmd -i Cobalt.img ::/EFI && mmd -i Cobalt.img ::/EFI/BOOT
+echo Formatted boot image.
+
+mcopy -i Cobalt.img BOOTX64.efi ::/EFI/BOOT
+echo "Added code to boot image."
+
+echo "Finished build. Thank you :)"
+echo
+
+####################################################################
+## OPTIONALLY RUN OS
+####################################################################
 if [ "$1" == "run" ]; then
-    sudo qemu-system-x86_64 -machine q35 -m 256 -smp 2 -net none                                \
-        -global driver=cfi.pflash01,property=secure,value=on                                    \
-        -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.4m.fd,readonly=on \
-        -drive if=pflash,format=raw,unit=1,file=/usr/share/edk2/x64/OVMF_VARS.4m.fd             \
+    OVMF_FORMAT="if=pflash,format=raw"
+    OVMF_CODE_PATH=/usr/share/edk2/x64/OVMF_CODE.4m.fd
+    OVMF_VARS_PATH=/usr/share/edk2/x64/OVMF_VARS.4m.fd
+    OVMF_CODE="$OVMF_FORMAT,unit=0,file=$OVMF_CODE_PATH,readonly=on"
+    OVMF_VARS="$OVMF_FORMAT,unit=1,file=$OVMF_VARS_PATH"
+
+    sudo qemu-system-x86_64 -machine q35 -m 256 -smp 2 -net none   \
+        -global driver=cfi.pflash01,property=secure,value=on       \
+        -drive $OVMF_CODE -drive $OVMF_VARS                        \
         -drive if=ide,format=raw,file=Cobalt.img
 fi
