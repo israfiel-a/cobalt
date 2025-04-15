@@ -1,6 +1,25 @@
+/*#####################################################################
+## PROJECT LINKER SCRIPT
+## SINCE 0.1.0
+## UPDATED 0.1.0
+## This file contains the GCC linker script required to map the 
+## project binary into a structure both the hardware and our software 
+## can understand.
+##
+## Copyright (c) 2025 Israfil Argos
+## This file is under the AGPLv3. For information on what that 
+## entails, see the attached LICENSE.md file or 
+## https://www.gnu.org/licenses/agpl-3.0.en.html.
+#####################################################################*/
+
 OUTPUT_FORMAT("elf64-x86-64")
 OUTPUT_ARCH(i386:x86-64)
 ENTRY(efi_main)
+
+/* 
+    This is complete magic to me. Taken from
+    https://wiki.osdev.org/User:Xenos/UEFI_Bare_Bones.
+*/
 SECTIONS
 {
 	. = 4096;
@@ -12,7 +31,7 @@ SECTIONS
 	{
 		_text = .;
 		*(.text)
-		*(.text.*)
+		*(.text*)
 		*(.gnu.linkonce.t.*)
 		. = ALIGN(16);
 	}

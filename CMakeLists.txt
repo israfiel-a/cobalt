@@ -44,5 +44,5 @@ include_directories(/usr/include/efi /usr/include/efi/x86_64)
 ####################################################################
 ## TARGET INITIALIZATION
 ####################################################################
-add_executable(${PROJECT_NAME} Source/Initialization.c)
+add_executable(${PROJECT_NAME} Source/Boot.c)
 target_link_libraries(${PROJECT_NAME} gcc)
