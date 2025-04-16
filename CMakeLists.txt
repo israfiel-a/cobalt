@@ -40,9 +40,12 @@ set(CMAKE_C_STANDARD 23)
 
 add_compile_definitions(EFI_FUNCTION_WRAPPER)
 
-include_directories(/usr/include/efi /usr/include/efi/x86_64)
+include_directories(/usr/include/efi /usr/include/efi/x86_64
+    ${CMAKE_SOURCE_DIR}/Include)
 
 ####################################################################
 ## TARGET INITIALIZATION
 ####################################################################
-add_executable(${PROJECT_NAME} Source/Boot.c)
+add_executable(${PROJECT_NAME} Source/Boot.c Source/Math.c 
+    Source/EFI/Print.c Include/Math.h Include/EFI/Print.h 
+    Include/EFI/Types.h)
