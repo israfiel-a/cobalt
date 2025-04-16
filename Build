@@ -29,10 +29,8 @@ echo "Compiled via CMake."
 # Copy the executable produced by CMake into an EFI-compatible boot
 # file.
 cd Cobalt
-x86_64-elf-objcopy -j .text -j .sdata -j .data -j .rodata          \
-    -j .dynamic -j .dynsym  -j .rel -j .rela -j .rel.* -j .rela.*  \
-    -j .reloc --target efi-app-x86_64 --subsystem=10               \
-    Cobalt BOOTX64.efi
+x86_64-elf-objcopy -I elf64-x86-64 -O efi-app-x86_64 Cobalt        \
+    BOOTX64.efi
 echo "Translated ELF binary into EFI PE."
 
 ####################################################################
