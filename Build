@@ -16,16 +16,23 @@
 echo # Begin with a newline to better distinguish from CMD.
 
 # Configure and build via CMake, with 9 threads allocated for work.
-cmake -B build . --toolchain Toolchain/Toolchain.cmake             \
-    --no-warn-unused-cli 1>/dev/null
-cd build && cmake --build . --parallel 9 1>/dev/null
+if ! cmake -B build . --toolchain Toolchain/Toolchain.cmake        \
+    --no-warn-unused-cli 1>/dev/null; then
+    exit 255
+fi
+cd build
+if ! cmake --build . --parallel 9 1>/dev/null; then
+    exit 255
+fi
 echo "Compiled via CMake."
 
 # Copy the executable produced by CMake into an EFI-compatible boot
 # file.
 cd Cobalt
-x86_64-elf-objcopy -I elf64-x86-64 -O efi-app-x86-64 Cobalt        \
-    BOOTX64.efi
+x86_64-elf-objcopy -j .text -j .sdata -j .data -j .rodata          \
+    -j .dynamic -j .dynsym  -j .rel -j .rela -j .rel.* -j .rela.*  \
+    -j .reloc --target efi-app-x86_64 --subsystem=10               \
+    Cobalt BOOTX64.efi
 echo "Translated ELF binary into EFI PE."
 
 ####################################################################

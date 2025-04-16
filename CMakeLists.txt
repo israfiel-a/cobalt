@@ -30,6 +30,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
     ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 # Create a commands.json file for analysis tools.
 set(CMAKE_EXPORT_COMPILE_COMMANDS YES)
+set(CMAKE_VERBOSE_MAKEFILE YES)
 
 ####################################################################
 ## FLAG INITIALIZATION
@@ -45,4 +46,3 @@ include_directories(/usr/include/efi /usr/include/efi/x86_64)
 ## TARGET INITIALIZATION
 ####################################################################
 add_executable(${PROJECT_NAME} Source/Boot.c)
-target_link_libraries(${PROJECT_NAME} gcc)

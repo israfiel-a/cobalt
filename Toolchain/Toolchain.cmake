@@ -21,8 +21,10 @@ set(CMAKE_OBJCOPY x86_64-elf-objcopy)
 
 set(CMAKE_C_COMPILER_TARGET x86_64-none-elf)
 set(CMAKE_C_FLAGS "-ffreestanding -fpic -fno-stack-protector       \
-    -fshort-wchar -mno-red-zone -Wall -Wextra -Werror -Wpedantic   \
-    -Ofast -mgeneral-regs-only -mabi=ms")
-set(CMAKE_EXE_LINKER_FLAGS "-nostdlib -shared                      \
-    -Wl,-T,${CMAKE_SOURCE_DIR}/Toolchain/Linkscript.lds            \
-    -Wl,-Bsymbolic -Wl,-znocombreloc")
+    -mno-stack-arg-probe -fshort-wchar -mno-red-zone -Wall -Wextra \
+    -Werror -Wpedantic -Ofast -mgeneral-regs-only -mabi=ms         \
+    -nostdlib -shared -march=x86-64 -mtune=native -flto -s         \
+    -fno-asynchronous-unwind-tables -mabi=ms")
+set(CMAKE_EXE_LINKER_FLAGS "LINKER:-Bsymbolic LINKER:-znocombreloc \
+    LINKER:-flto                                                   \
+    LINKER:-T,${CMAKE_SOURCE_DIR}/Toolchain/Linkscript.lds")

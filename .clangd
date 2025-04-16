@@ -1,2 +1,2 @@
 CompileFlags:
-    Remove: -mabi=ms # Stop Clang from whinging.
+  Remove: [-mabi=ms, -maccumulate-outgoing-args] # Stop Clang from whinging.
