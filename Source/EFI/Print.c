@@ -84,8 +84,7 @@ EFI_STATUS Cobalt_PrimitiveTimestamp(COBALT_WIDESTR messageFormat, ...)
     va_end(args);
 
     EFI_TIME time;
-    EFI_TIME_CAPABILITIES timeCapabilities;
-    cobalt_efiInfo.runtimeServices->GetTime(&time, &timeCapabilities);
+    cobalt_efiInfo.runtimeServices->GetTime(&time, nullptr);
 
     return Cobalt_PrimitivePrintf(
         L"%U/%U/%U @ %U:%U:%U" NL, (uint64_t)time.Day,

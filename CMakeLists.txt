@@ -47,5 +47,5 @@ include_directories(/usr/include/efi /usr/include/efi/x86_64
 ## TARGET INITIALIZATION
 ####################################################################
 add_executable(${PROJECT_NAME} Source/Boot.c Source/Math.c 
-    Source/EFI/Print.c Include/Math.h Include/EFI/Print.h 
-    Include/EFI/Types.h)
+    Source/EFI/Print.c Source/EFI/Graphics.c Include/Math.h 
+    Include/EFI/Print.h Include/EFI/Types.h Include/EFI/Graphics.h)

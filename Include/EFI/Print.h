@@ -13,8 +13,8 @@
  * https://www.gnu.org/licenses/agpl-3.0.en.html.
  */
 
-#ifndef COBALT_EFI_PRINT
-#define COBALT_EFI_PRINT
+#ifndef COBALT_EFI_PRINT_H
+#define COBALT_EFI_PRINT_H
 
 #include <EFI/Types.h>
 #include <efi.h>
@@ -101,4 +101,4 @@ EFI_STATUS Cobalt_PrimitivePuts(COBALT_WIDESTR string);
 
 EFI_STATUS Cobalt_PrimitiveTimestamp(COBALT_WIDESTR messageFormat, ...);
 
-#endif // COBALT_EFI_PRINT
+#endif // COBALT_EFI_PRINT_H

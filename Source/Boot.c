@@ -12,6 +12,7 @@
  * https://www.gnu.org/licenses/agpl-3.0.en.html.
  */
 
+#include <EFI/Graphics.h>
 #include <EFI/Print.h>
 #include <efi.h>
 
@@ -52,8 +53,9 @@ static EFI_STATUS waitKey(uint8_t timeOut, EFI_BOOT_SERVICES *services)
 }
 
 /**
- * @brief The entrypoint of the kernel. EFI first hands off control at
- * this point, from which our OS sets up its environment.
+ * @brief The entrypoint of the kernel loader. EFI first hands off control
+ * at this point, from which our loader sets up its environment and loads
+ * the kernel.
  * @authors Israfil Argos
  * @since 0.1.0
  *
@@ -70,8 +72,8 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE _ImageHandle,
     cobalt_conOut = SystemTable->ConOut;
     cobalt_conIn = SystemTable->ConIn;
 
-    cobalt_efiInfo = (cobalt_efi_info_t){.runtimeServices =
-                                             SystemTable->RuntimeServices};
+    cobalt_efiInfo = (cobalt_efi_info_t){0};
+    cobalt_efiInfo.runtimeServices = SystemTable->RuntimeServices;
 
     // Clear the screen of any text the UEFI environment may have splurged
     // out, and replace it with a nice friendly greeting.
@@ -79,13 +81,17 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE _ImageHandle,
     (void)Cobalt_PrimitivePuts(L"Hi! CobaltOS now booting. :) ");
     (void)Cobalt_PrimitiveTimestamp(L"Boot Time: ");
 
-    uint8_t firmwareTimeout = 5;
+    const uint8_t firmwareTimeout = 5;
     Cobalt_PrimitivePrintf(
         L"Exit into firmware with 'f'. Continuing in %U seconds.",
         firmwareTimeout);
     EFI_STATUS keyStatus =
         waitKey(firmwareTimeout, SystemTable->BootServices);
     if (keyStatus == (EFI_STATUS)-8008) return 0;
+
+    cobalt_efi_framebuffers_t framebuffers = {0};
+    EFI_STATUS graphicsStatus = Cobalt_InitializeGraphics(&framebuffers);
+    if (EFI_ERROR(graphicsStatus)) return graphicsStatus;
 
     return keyStatus;
 }
