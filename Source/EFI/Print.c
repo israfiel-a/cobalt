@@ -12,49 +12,83 @@
 
 #include <EFI/Print.h>
 #include <Math.h>
-#include <stdarg.h>
+
+EFI_STATUS Cobalt_PrimitiveClear(void)
+{
+    return cobalt_conOut->ClearScreen(cobalt_conOut);
+}
+
+EFI_STATUS Cobalt_PrimitivePrintfv(COBALT_WIDESTR format, va_list args)
+{
+    EFI_STATUS returnStatus = 0;
+
+    int64_t i = -1;
+    unsigned short currentCharacter = 1;
+    while (currentCharacter != 0)
+    {
+        currentCharacter = format[++i];
+        if (currentCharacter == L'%')
+        {
+            unsigned short iString[64];
+            switch (format[i + 1])
+            {
+                case L's':
+                    returnStatus = Cobalt_PrimitivePuts(
+                        va_arg(args, unsigned short *));
+                    i++;
+                    continue;
+                case L'L':
+                    itoa_wide(va_arg(args, int64_t), iString, 10);
+                    returnStatus = Cobalt_PrimitivePuts(iString);
+                    i++;
+                    continue;
+                case L'U':
+                    uitoa_wide(va_arg(args, uint64_t), iString, 10);
+                    returnStatus = Cobalt_PrimitivePuts(iString);
+                    i++;
+                    continue;
+            }
+        }
+
+        unsigned short strprint[2] = {currentCharacter, 0};
+        Cobalt_PrimitivePuts(strprint);
+    }
+
+    return returnStatus;
+}
 
 EFI_STATUS Cobalt_PrimitivePrintf(unsigned short *format, ...)
 {
     va_list args;
     va_start(args, format);
 
-    EFI_STATUS returnStatus = 0;
-
-    size_t i = 0;
-    unsigned short currentCharacter = format[i];
-    while (currentCharacter != 0)
-    {
-        if (currentCharacter == L'%')
-        {
-            currentCharacter = format[++i];
-            switch (currentCharacter)
-            {
-                case L's':
-                    Cobalt_PrimitivePuts(va_arg(args, unsigned short *));
-                    break;
-                case L'i':
-                    unsigned short iString[64];
-                    int length =
-                        itoa_wide(va_arg(args, int64_t), iString, 10);
-                    iString[length] = 0;
-                    Cobalt_PrimitivePuts(iString);
-                    break;
-            }
-        }
-        else
-        {
-            unsigned short strprint[2] = {currentCharacter, 0};
-            Cobalt_PrimitivePuts(strprint);
-        }
-        currentCharacter = format[++i];
-    }
+    EFI_STATUS status = Cobalt_PrimitivePrintfv(format, args);
 
     va_end(args);
-    return returnStatus;
+    return status;
 }
 
 EFI_STATUS Cobalt_PrimitivePuts(COBALT_WIDESTR string)
 {
     return cobalt_conOut->OutputString(cobalt_conOut, string);
+}
+
+EFI_STATUS Cobalt_PrimitiveTimestamp(COBALT_WIDESTR messageFormat, ...)
+{
+    va_list args;
+    va_start(args, messageFormat);
+
+    EFI_STATUS status = Cobalt_PrimitivePrintfv(messageFormat, args);
+    if (EFI_ERROR(status)) return status;
+
+    va_end(args);
+
+    EFI_TIME time;
+    EFI_TIME_CAPABILITIES timeCapabilities;
+    cobalt_efiInfo.runtimeServices->GetTime(&time, &timeCapabilities);
+
+    return Cobalt_PrimitivePrintf(
+        L"%U/%U/%U @ %U:%U:%U" NL, (uint64_t)time.Day,
+        (uint64_t)time.Month, (uint64_t)time.Year, (uint64_t)time.Hour,
+        (uint64_t)time.Minute, (uint64_t)time.Second);
 }

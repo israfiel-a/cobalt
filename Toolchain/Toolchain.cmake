@@ -24,7 +24,8 @@ set(CMAKE_C_FLAGS "-ffreestanding -fpic -fno-stack-protector       \
     -mno-stack-arg-probe -fshort-wchar -mno-red-zone -Wall -Wextra \
     -Werror -Wpedantic -Ofast -mgeneral-regs-only -mabi=ms         \
     -nostdlib -march=x86-64 -mtune=native -flto -s                 \
-    -fno-asynchronous-unwind-tables")
+    -fno-asynchronous-unwind-tables                                \
+    -Wno-gnu-zero-variadic-macro-arguments")
 set(CMAKE_EXE_LINKER_FLAGS "LINKER:-Bsymbolic LINKER:-znocombreloc \
     LINKER:-flto LINKER:-shared                                    \
     LINKER:-T,${CMAKE_SOURCE_DIR}/Toolchain/Linkscript.lds")
