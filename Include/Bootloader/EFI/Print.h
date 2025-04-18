@@ -16,7 +16,7 @@
 #ifndef COBALT_EFI_PRINT_H
 #define COBALT_EFI_PRINT_H
 
-#include <EFI/Types.h>
+#include <Bootloader/Types.h>
 #include <efi.h>
 #include <efistdarg.h>
 

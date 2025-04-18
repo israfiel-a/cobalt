@@ -26,12 +26,14 @@ if ! cmake --build . --parallel 9 1>/dev/null; then
 fi
 echo "Compiled via CMake."
 
-# Copy the executable produced by CMake into an EFI-compatible boot
+# Copy the executables produced by CMake into an EFI-compatible boot
 # file.
 cd Cobalt
-x86_64-elf-objcopy -I elf64-x86-64 -O efi-app-x86_64 Cobalt        \
-    BOOTX64.efi
-echo "Translated ELF binary into EFI PE."
+x86_64-elf-objcopy -I elf64-x86-64 -O efi-app-x86_64               \
+    Cobalt-Bootloader BOOTX64.efi
+x86_64-elf-objcopy -I elf64-x86-64 -O efi-app-x86_64               \
+    Cobalt KERNEL.efi
+echo "Translated ELF binaries into EFI PEs."
 
 ####################################################################
 ## CREATE BOOT IMAGE
@@ -44,6 +46,7 @@ mmd -i Cobalt.img ::/EFI && mmd -i Cobalt.img ::/EFI/BOOT
 echo Formatted boot image.
 
 mcopy -i Cobalt.img BOOTX64.efi ::/EFI/BOOT
+mcopy -i Cobalt.img KERNEL.efi ::
 echo "Added code to boot image."
 
 echo "Finished build. Thank you :)"

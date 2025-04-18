@@ -10,8 +10,8 @@
  * https://www.gnu.org/licenses/agpl-3.0.en.html.
  */
 
-#include <EFI/Print.h>
-#include <Math.h>
+#include <Bootloader/EFI/Print.h>
+#include <Bootloader/Math.h>
 
 EFI_STATUS Cobalt_PrimitiveClear(void)
 {
