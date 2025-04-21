@@ -47,9 +47,10 @@ include_directories(/usr/include/efi /usr/include/efi/x86_64
 ## TARGET INITIALIZATION
 ####################################################################
 add_executable(${PROJECT_NAME}-Bootloader Source/Bootloader/Boot.c 
-    Source/Bootloader/Math.c Include/Bootloader/Types.h
+    Source/Bootloader/Math.c Source/Bootloader/Memory.c 
     Source/Bootloader/EFI/Print.c Source/Bootloader/EFI/Graphics.c 
-    Include/Bootloader/Math.h Include/Bootloader/EFI/Print.h
+    Include/Bootloader/Types.h Include/Bootloader/Math.h 
+    Include/Bootloader/EFI/Print.h Include/Bootloader/Memory.h 
     Include/Bootloader/EFI/Graphics.h)
 
 add_executable(${PROJECT_NAME} Source/Kernel.c)
