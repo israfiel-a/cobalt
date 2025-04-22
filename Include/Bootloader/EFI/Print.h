@@ -7,7 +7,7 @@
  * file deal exclusively in UTF-16 strings.
  * @since 0.1.0
  *
- * @copyright (c) 2024 Israfil Argos
+ * @copyright (c) 2025 Israfil Argos
  * This file is under the AGPLv3. For information on what that entails, see
  * the attached LICENSE.md file or
  * https://www.gnu.org/licenses/agpl-3.0.en.html.

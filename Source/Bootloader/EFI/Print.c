@@ -4,7 +4,7 @@
  * @brief The implementation of the primitive EFI printing routines
  * outlined in the EFI/Print.h file.
  *
- * @copyright (c) 2024 Israfil Argos
+ * @copyright (c) 2025 Israfil Argos
  * This file is under the AGPLv3. For information on what that entails, see
  * the attached LICENSE.md file or
  * https://www.gnu.org/licenses/agpl-3.0.en.html.

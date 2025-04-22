@@ -6,7 +6,7 @@
  * kernelmode.
  * @since 0.1.0
  *
- * @copyright (c) 2024 Israfil Argos
+ * @copyright (c) 2025 Israfil Argos
  * This file is under the AGPLv3. For information on what that entails, see
  * the attached LICENSE.md file or
  * https://www.gnu.org/licenses/agpl-3.0.en.html.
@@ -15,6 +15,7 @@
 #include <Bootloader/EFI/Graphics.h>
 #include <Bootloader/EFI/Print.h>
 #include <Bootloader/Memory.h>
+#include <Headers/DOS.h>
 #include <efi.h>
 
 // should probably get rid of this to not waste memory when kernel invoked
@@ -153,9 +154,10 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
     UINTN size = sizeof(cobalt_dos_header_t);
     cobalt_dos_header_t kernelHeader;
     kernelFile->Read(kernelFile, &size, &kernelHeader);
-    if (kernelHeader.e_magic != 0x5A4D) return -1;
+    if (kernelHeader.magicNumber != 0x5A4D) return -1;
 
-    kernelFile->SetPosition(kernelFile, (uint64_t)kernelHeader.e_lfanew);
+    kernelFile->SetPosition(kernelFile,
+                            (uint64_t)kernelHeader.ntHeaderOffset);
     size = sizeof(cobalt_pe_header_t);
     cobalt_pe_header_t kernelPEHeader;
     kernelFile->Read(kernelFile, &size, &kernelPEHeader);

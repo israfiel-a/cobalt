@@ -46,11 +46,19 @@ include_directories(/usr/include/efi /usr/include/efi/x86_64
 ####################################################################
 ## TARGET INITIALIZATION
 ####################################################################
-add_executable(${PROJECT_NAME}-Bootloader Source/Bootloader/Boot.c 
-    Source/Bootloader/Math.c Source/Bootloader/Memory.c 
-    Source/Bootloader/EFI/Print.c Source/Bootloader/EFI/Graphics.c 
-    Include/Bootloader/Types.h Include/Bootloader/Math.h 
-    Include/Bootloader/EFI/Print.h Include/Bootloader/Memory.h 
-    Include/Bootloader/EFI/Graphics.h)
 
-add_executable(${PROJECT_NAME} Source/Kernel.c)
+file(GLOB COMMON_HEADERS Include/*.h Include/Headers/*.h)
+file(GLOB COMMON_SOURCES)
+
+file(GLOB BOOTLOADER_HEADERS Include/Bootloader/*.h 
+    Include/Bootloader/EFI/*.h)
+file(GLOB BOOTLOADER_SOURCES Source/Bootloader/*.c 
+    Source/Bootloader/EFI/*.c)
+
+file(GLOB KERNEL_HEADERS)
+file(GLOB KERNEL_SOURCES Source/Kernel.c)
+
+add_executable(${PROJECT_NAME}-Bootloader ${COMMON_HEADERS} 
+    ${COMMON_SOURCES} ${BOOTLOADER_HEADERS} ${BOOTLOADER_SOURCES})
+add_executable(${PROJECT_NAME} ${COMMON_HEADERS} ${COMMON_SOURCES} 
+    ${KERNEL_HEADERS} ${KERNEL_SOURCES})

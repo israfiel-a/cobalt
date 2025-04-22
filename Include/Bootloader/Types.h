@@ -31,30 +31,6 @@ typedef struct
 } cobalt_efi_info_t;
 
 typedef struct
-{                   // DOS .EXE header
-    UINT16 e_magic; // Magic number
-    UINT16 e_cblp;  // Bytes on last page of file
-    UINT16 e_cp;    // Pages in file
-    UINT16 e_crlc;  // Relocations
-    UINT16
-    e_cparhdr; // Size of header in paragraphs (1 paragraph = 16 bytes)
-    UINT16 e_minalloc; // Minimum extra paragraphs needed
-    UINT16 e_maxalloc; // Maximum extra paragraphs needed
-    UINT16 e_ss;       // Initial (relative) SS value
-    UINT16 e_sp;       // Initial SP value
-    UINT16 e_csum;     // Checksum
-    UINT16 e_ip;       // Initial IP value
-    UINT16 e_cs;       // Initial (relative) CS value
-    UINT16 e_lfarlc;   // File address of relocation table
-    UINT16 e_ovno;     // Overlay number
-    UINT16 e_res[4];   // Reserved words
-    UINT16 e_oemid;    // OEM identifier (for e_oeminfo)
-    UINT16 e_oeminfo;  // OEM information; e_oemid specific
-    UINT16 e_res2[10]; // Reserved words
-    UINT32 e_lfanew;   // File address of new exe header
-} cobalt_dos_header_t;
-
-typedef struct
 {
     UINT32 Signature;
     struct
