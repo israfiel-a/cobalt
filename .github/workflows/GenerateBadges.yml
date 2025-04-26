@@ -22,7 +22,7 @@ jobs:
                 debug: true
                 directory: ./
                 badge: ./output/loc.svg
-                patterns: '*.c|*.h|*.cmake|*.lds|CMakeLists.txt|Build'
+                patterns: '**/*.c|**/*.h|**/*.cmake|**/*.lds|CMakeLists.txt|Build'
             - name: Deploy Icon
               uses: peaceiris/actions-gh-pages@v3
               with:
