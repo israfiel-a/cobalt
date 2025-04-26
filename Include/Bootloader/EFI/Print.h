@@ -6,7 +6,7 @@
  * bootloader section of the operating system. All functions within this
  * file deal exclusively in UTF-16 strings.
  * @since 0.1.0.0
- * @updated 0.1.0.1
+ * @updated 0.1.0.3
  *
  * @copyright (c) 2025 Israfil Argos
  * This file is under the AGPLv3. For information on what that entails, see
@@ -14,8 +14,8 @@
  * https://www.gnu.org/licenses/agpl-3.0.en.html.
  */
 
-#ifndef COBALT_EFI_PRINT_H
-#define COBALT_EFI_PRINT_H
+#ifndef COBALT_BOOTLOADER_EFI_PRINT_H
+#define COBALT_BOOTLOADER_EFI_PRINT_H
 
 #include <Bootloader/Types.h>
 #include <efi.h>
@@ -102,4 +102,4 @@ EFI_STATUS Cobalt_PrimitivePuts(COBALT_WIDESTR string);
 
 EFI_STATUS Cobalt_PrimitiveTimestamp(COBALT_WIDESTR messageFormat, ...);
 
-#endif // COBALT_EFI_PRINT_H
+#endif // COBALT_BOOTLOADER_EFI_PRINT_H

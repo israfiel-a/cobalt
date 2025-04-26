@@ -13,6 +13,7 @@
  * https://www.gnu.org/licenses/agpl-3.0.en.html.
  */
 
+#include <Bootloader/EFI/Files.h>
 #include <Bootloader/EFI/Graphics.h>
 #include <Bootloader/EFI/Print.h>
 #include <Bootloader/Memory.h>
@@ -117,43 +118,25 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
     }
     Cobalt_PrimitivePuts(L"Opened image load protocol." NL);
 
-    EFI_GUID simpleFilesystem = EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
-    EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *filesystem;
-    openProtocolStatus = SystemTable->BootServices->OpenProtocol(
-        kernelImage->DeviceHandle, &simpleFilesystem, (void **)&filesystem,
-        ImageHandle, nullptr, EFI_OPEN_PROTOCOL_GET_PROTOCOL);
-    if (EFI_ERROR(openProtocolStatus))
+    cobalt_efi_filesystem_t *filesystem;
+    cobalt_efi_root_volume_t *root;
+    EFI_STATUS filesystemStatus = Cobalt_OpenFilesystem(
+        ImageHandle, kernelImage->DeviceHandle, SystemTable->BootServices,
+        &filesystem, &root);
+    if (EFI_ERROR(filesystemStatus))
     {
-        Cobalt_PrimitivePrintf(
-            L"Failed to open filesystem protocol. Code: %U." NL,
-            (uint64_t)openProtocolStatus);
-        waitKey(10, SystemTable->BootServices);
-        return openProtocolStatus;
-    }
-    Cobalt_PrimitivePuts(L"Opened filesystem protocol." NL);
-
-    EFI_FILE *root;
-    EFI_STATUS rootOpenStatus = filesystem->OpenVolume(filesystem, &root);
-    if (EFI_ERROR(rootOpenStatus))
-    {
-        Cobalt_PrimitivePrintf(L"Failed to open root volume. Code: %U." NL,
-                               (uint64_t)rootOpenStatus);
-        waitKey(10, SystemTable->BootServices);
-        return rootOpenStatus;
+        waitKey(255, SystemTable->BootServices);
+        return filesystemStatus;
     }
 
     EFI_FILE *kernelFile;
-    EFI_STATUS kernelOpenStatus =
-        root->Open(root, &kernelFile, L"\\KERNEL.efi", EFI_FILE_MODE_READ,
-                   EFI_FILE_READ_ONLY);
-    if (EFI_ERROR(kernelOpenStatus))
+    EFI_STATUS kernelFileStatus =
+        Cobalt_OpenFile(root, L"\\KERNEL.efi", &kernelFile);
+    if (EFI_ERROR(kernelFileStatus))
     {
-        Cobalt_PrimitivePrintf(L"Failed to open kernel file. Code: %U." NL,
-                               (uint64_t)kernelOpenStatus);
         waitKey(255, SystemTable->BootServices);
-        return kernelOpenStatus;
+        return kernelFileStatus;
     }
-    Cobalt_PrimitivePuts(L"Opened kernel file." NL);
 
     UINTN size = sizeof(cobalt_dos_header_t);
     cobalt_dos_header_t kernelHeader;
@@ -230,6 +213,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
                          (EFI_PHYSICAL_ADDRESS *)sectionAddress);
     }
     SystemTable->BootServices->FreePool(sectionHeaderTable);
+    kernelFile->Close(kernelFile);
 
 #define IMAGE_DIRECTORY_ENTRY_BASERELOC 5
     if ((kernelAllocatedMemory |=
@@ -346,7 +330,17 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
             &memoryMapDescriptorSize, &memoryMapDescriptorVersion);
     }
 
-    SystemTable->BootServices->ExitBootServices(ImageHandle, memoryMapKey);
+    Cobalt_PrimitivePuts(L"Jumping to kernel...");
+
+    EFI_STATUS exitStatus = SystemTable->BootServices->ExitBootServices(
+        ImageHandle, memoryMapKey);
+    if (EFI_ERROR(exitStatus))
+    {
+        Cobalt_PrimitivePrintf(
+            L"Failed to exit boot services. Code: %U." NL, exitStatus);
+        waitKey(255, SystemTable->BootServices);
+        return exitStatus;
+    }
 
     efiInfo->memoryMap = (cobalt_memory_map_t){memoryMapDescriptorSize,
                                                memoryMapSize, memoryMap};
@@ -356,6 +350,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
     efiInfo->runtimeServices = SystemTable->RuntimeServices;
     efiInfo->graphicsMode = graphicsMode;
 
+    Cobalt_PrimitivePuts(L"Jumping to kernel...");
     typedef void (*entrypointJump)(cobalt_efi_info_t *loaderParameters);
     entrypointJump jump = (entrypointJump)(kernelHeaderMemory);
     jump(efiInfo);

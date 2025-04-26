@@ -1,5 +1,5 @@
-#ifndef COBALT_EFI_TYPES_H
-#define COBALT_EFI_TYPES_H
+#ifndef COBALT_BOOTLOADER_TYPES_H
+#define COBALT_BOOTLOADER_TYPES_H
 
 #include <efi.h>
 #include <stdint.h>
@@ -58,4 +58,4 @@ typedef struct
 
 extern cobalt_efi_info_t cobalt_efiInfo;
 
-#endif // COBALT_EFI_TYPES_H
+#endif // COBALT_BOOTLOADER_TYPES_H
