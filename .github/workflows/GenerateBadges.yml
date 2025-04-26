@@ -1,0 +1,27 @@
+on: [pull_request, push]
+permissions:
+    statuses: write
+    contents: read
+jobs:
+    generate_loc_badge:
+        name: LOC Badge
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Generate Badge
+              uses: shadowmoose/GHA-LoC-Badge@1.0.0
+              id: badge
+              with:
+                debug: true
+                directory: ./
+                badge: ./.github/loc.svg
+                patterns: '*.c|*.h|*.cmake|*.lds|CMakeLists.txt|Build'
+            - name: Deploy Icon
+              uses: peaceiris/actions-gh-pages@v3
+              with:
+                publish_dir: ./.github
+                publish_branch: main
+                github_token: ${{ secrets.GITHUB_TOKEN }}
+                user_name: 'github-actions[bot]'
+                user_email: 'github-actions[bot]@users.noreply.github.com'
