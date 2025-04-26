@@ -5,7 +5,7 @@
  * tbe most basic of setup before exiting the UEFI environment and entering
  * kernelmode.
  * @since 0.1.0.0
- * @updated 0.1.0.1
+ * @updated 0.1.0.2
  *
  * @copyright (c) 2025 Israfil Argos
  * This file is under the AGPLv3. For information on what that entails, see
@@ -196,10 +196,10 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
     Cobalt_PrimitivePrintf(L"Virtual size: %U." NL, virt_size);
 
     UINTN kernelHeaderSize =
-        (UINTN)kernelPEHeader.OptionalHeader.SizeOfHeaders;
+        (UINTN)kernelPEHeader.optionalHeader.headerSize;
     UINT64 kernelPages = EFI_SIZE_TO_PAGES(virt_size);
     EFI_PHYSICAL_ADDRESS kernelAllocatedMemory =
-        kernelPEHeader.OptionalHeader.ImageBase;
+        kernelPEHeader.optionalHeader.imageBase;
 
     SystemTable->BootServices->AllocatePages(AllocateAnyPages,
                                              EfiLoaderData, kernelPages,
@@ -233,8 +233,8 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
 
 #define IMAGE_DIRECTORY_ENTRY_BASERELOC 5
     if ((kernelAllocatedMemory |=
-         kernelPEHeader.OptionalHeader.ImageBase) &&
-        (kernelPEHeader.OptionalHeader.NumberOfRvaAndSizes >
+         kernelPEHeader.optionalHeader.imageBase) &&
+        (kernelPEHeader.optionalHeader.dataDirectoryLength >
          IMAGE_DIRECTORY_ENTRY_BASERELOC))
     {
         cobalt_image_base_relocation_t *relocationDirectoryBase;
@@ -243,23 +243,23 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
         relocationDirectoryBase =
             (cobalt_image_base_relocation_t
                  *)(kernelAllocatedMemory +
-                    (UINT64)kernelPEHeader.OptionalHeader
-                        .DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC]
-                        .VirtualAddress);
+                    (UINT64)kernelPEHeader.optionalHeader
+                        .dataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC]
+                        .virtualAddress);
         relocTableEnd =
             (cobalt_image_base_relocation_t
                  *)(relocationDirectoryBase +
-                    (UINT64)kernelPEHeader.OptionalHeader
-                        .DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC]
-                        .Size);
+                    (UINT64)kernelPEHeader.optionalHeader
+                        .dataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC]
+                        .size);
 
         UINT64 delta;
         if (kernelAllocatedMemory >
-            kernelPEHeader.OptionalHeader.ImageBase)
+            kernelPEHeader.optionalHeader.imageBase)
             delta = kernelAllocatedMemory -
-                    kernelPEHeader.OptionalHeader.ImageBase;
+                    kernelPEHeader.optionalHeader.imageBase;
         else
-            delta = kernelPEHeader.OptionalHeader.ImageBase -
+            delta = kernelPEHeader.optionalHeader.imageBase -
                     kernelAllocatedMemory;
 
         UINT64 relocationCountPerChunk;
@@ -291,7 +291,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
                 {
                     // evil
                     if (kernelAllocatedMemory >
-                        kernelPEHeader.OptionalHeader.ImageBase)
+                        kernelPEHeader.optionalHeader.imageBase)
                         *((UINT64 *)((UINT8 *)page +
                                      (currentData & EFI_PAGE_MASK))) +=
                             delta;
@@ -314,7 +314,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
     EFI_PHYSICAL_ADDRESS kernelBaseAddress = kernelAllocatedMemory;
     EFI_PHYSICAL_ADDRESS kernelHeaderMemory =
         kernelAllocatedMemory +
-        (UINT64)kernelPEHeader.OptionalHeader.AddressOfEntryPoint;
+        (UINT64)kernelPEHeader.optionalHeader.entrypointAddress;
 
     cobalt_efi_info_t *efiInfo;
     SystemTable->BootServices->AllocatePool(

@@ -13,6 +13,9 @@ typedef signed long cobalt_i64_t;
 
 // defined in this weird way so as to be VERY unlikely to collide with
 // structure members
-#define PAD(bitLength) char padBit##bitLength[bitLength]
+#define PAD_IMPLICIT(bitLength, count)                                    \
+    char padBit##bitLength##count[bitLength]
+#define PAD_INTERNAL(bitLength, count) PAD_IMPLICIT(bitLength, count)
+#define PAD(bitLength) PAD_INTERNAL(bitLength, __COUNTER__)
 
 #endif // COBALT_TYPES_H

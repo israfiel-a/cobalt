@@ -5,7 +5,7 @@
  * data imperative to jumping into the executable portion of the PE
  * executable file.
  * @since 0.1.0.1
- * @updated 0.1.0.1
+ * @updated 0.1.0.2
  *
  * @copyright (c) 2025 Israfil Argos
  * This file is under the AGPLv3. For information on what that entails, see
@@ -278,6 +278,87 @@ typedef enum : cobalt_u16_t
 } cobalt_coff_characteristics_t;
 
 /**
+ * @brief A bitmask enumerator that describes the various subsystems a PE
+ * file can be built to run within.
+ * @since 0.1.0.2
+ */
+typedef enum : cobalt_u16_t
+{
+    /**
+     * @brief An unknown subsystem. This is typically just bare metal.
+     * @since 0.1.0.2
+     */
+    COBALT_SUBSYSTEM_UNKNOWN = 0,
+    /**
+     * @brief Native Windows userspace subsystem.
+     * @since 0.1.0.2
+     */
+    COBALT_SUBSYSTEM_NATIVE = 1,
+    /**
+     * @brief The Windows graphical user interface (GUI) subsystem.
+     * @since 0.1.0.2
+     */
+    COBALT_SUBSYSTEM_WINDOWS_GUI = 2,
+    /**
+     * @brief The Windows character subsystem.
+     * @since 0.1.0.2
+     */
+    COBALT_SUBSYSTEM_WINDOWS_CUI = 3,
+    /**
+     * @brief The OS/2 character subsystem.
+     * @since 0.1.0.2
+     */
+    COBALT_SUBSYSTEM_OS2_CUI = 5,
+    /**
+     * @brief The Posix character subsystem.
+     * @since 0.1.0.2
+     */
+    COBALT_SUBSYSTEM_POSIX_CUI = 7,
+    /**
+     * @brief A native Win9x driver.
+     * @since 0.1.0.2
+     */
+    COBALT_SUBSYSTEM_NATIVE_WINDOWS = 8,
+    /**
+     * @brief Windows CE.
+     * @since 0.1.0.2
+     */
+    COBALT_SUBSYSTEM_WINDOWS_CE_GUI = 9,
+    /**
+     * @brief An Extensible Firmware Interface (EFI) application. This is
+     * only subsystem the Cobalt boot system will accept as a kernel
+     * executable.
+     * @since 0.1.0.2
+     */
+    COBALT_SUBSYSTEM_EFI_APPLICATION = 10,
+    /**
+     * @brief An EFI driver with boot services.
+     * @since 0.1.0.2
+     */
+    COBALT_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER = 11,
+    /**
+     * @brief An EFI driver with runtime services.
+     * @since 0.1.0.2
+     */
+    COBALT_SUBSYSTEM_EFI_RUNTIME_DRIVER = 11,
+    /**
+     * @brief An EFI ROM image.
+     * @since 0.1.0.2
+     */
+    COBALT_SUBSYSTEM_EFI_ROM = 12,
+    /**
+     * @brief XBOX.
+     * @since 0.1.0.2
+     */
+    COBALT_SUBSYSTEM_XBOX = 14,
+    /**
+     * @brief A Windows boot application.
+     * @since 0.1.0.2
+     */
+    COBALT_SUBSYSTEM_WINDOWS_BOOT_APPLICATION = 16
+} cobalt_subsystem_t;
+
+/**
  * @brief The PE (portable executable) file header. This is the de jure
  * standard executable format in UEFI environments. It contains a lot of
  * information useless to the OS, but also mission-critical pieces.
@@ -285,11 +366,6 @@ typedef enum : cobalt_u16_t
  */
 typedef struct
 {
-    /**
-     * @brief The COFF (common object file format) header. This contains
-     * data about the object file itself.
-     * @since 0.1.0.1
-     */
     struct
     {
         /**
@@ -298,6 +374,7 @@ typedef struct
          * @since 0.1.0.1
          */
         cobalt_u32_t magicNumber;
+
         /**
          * @brief A value describing the machine the executable was created
          * for. Pretty much useless in our case, but useful for memory and
@@ -305,6 +382,7 @@ typedef struct
          * @since 0.1.0.1
          */
         cobalt_coff_machine_t machine;
+
         /**
          * @brief The number of file sections. This is the best way to
          * identify the size of the section table, which comes directly
@@ -312,12 +390,14 @@ typedef struct
          * @since 0.1.0.1
          */
         cobalt_u16_t sectionCount;
+
         /**
          * @brief The low 32 bits of the timestamp (time_t format) of
          * executable file creation.
          * @since 0.1.0.1
          */
         cobalt_u32_t timeStamp;
+
         /**
          * @brief The pointer to the file's symbol table.
          * @since 0.1.0.1
@@ -326,6 +406,7 @@ typedef struct
          * of that.
          */
         cobalt_u32_t symbolTablePointer;
+
         /**
          * @brief The entry count within the symbol table.
          * @since 0.1.0.1
@@ -333,6 +414,7 @@ typedef struct
          * and this is a part of that. This should be zero because of that.
          */
         cobalt_u32_t symbolCount;
+
         /**
          * @brief The size of the "optional" header, which IS required for
          * executables, but not object files. We will exclusively be
@@ -340,50 +422,243 @@ typedef struct
          * @since 0.1.0.1
          */
         cobalt_u16_t optionalHeaderSize;
+
         /**
          * @brief A bitmask flag indicating attributes of the file.
          * @since 0.1.0.1
          */
         cobalt_coff_characteristics_t characteristics;
-    } coffHeader;
+    }
+    /**
+     * @brief The COFF (common object file format) header. This contains
+     * data about the object file itself.
+     * @since 0.1.0.1
+     */
+    coffHeader;
+
     struct
     {
-        // 0x10b for 32b, 0x20b for 64b
-        cobalt_u16_t Magic; /* 0x20b */
-        cobalt_u8_t MajorLinkerVersion;
-        cobalt_u8_t MinorLinkerVersion;
-        cobalt_u32_t SizeOfCode;
-        cobalt_u32_t SizeOfInitializedData;
-        cobalt_u32_t SizeOfUninitializedData;
-        cobalt_u32_t AddressOfEntryPoint;
-        cobalt_u32_t BaseOfCode;
-        cobalt_u64_t ImageBase;
-        cobalt_u32_t SectionAlignment;
-        cobalt_u32_t FileAlignment;
-        cobalt_u16_t MajorOperatingSystemVersion;
-        cobalt_u16_t MinorOperatingSystemVersion;
-        cobalt_u16_t MajorImageVersion;
-        cobalt_u16_t MinorImageVersion;
-        cobalt_u16_t MajorSubsystemVersion;
-        cobalt_u16_t MinorSubsystemVersion;
-        cobalt_u32_t Win32VersionValue;
-        cobalt_u32_t SizeOfImage;
-        cobalt_u32_t SizeOfHeaders;
-        cobalt_u32_t CheckSum;
-        cobalt_u16_t Subsystem;
-        cobalt_u16_t DllCharacteristics;
-        cobalt_u64_t SizeOfStackReserve;
-        cobalt_u64_t SizeOfStackCommit;
-        cobalt_u64_t SizeOfHeapReserve;
-        cobalt_u64_t SizeOfHeapCommit;
-        cobalt_u32_t LoaderFlags;
-        cobalt_u32_t NumberOfRvaAndSizes;
+        /**
+         * @brief The magic number specifying that this is, indeed, a PE
+         * optional header. On 64-bit machines, this is always 0x20, but on
+         * 32-bit machines it's 0x10.
+         * @since 0.1.0.1
+         */
+        cobalt_u16_t magicNumber;
+
+        /**
+         * @brief The version of the linker in (major | minor format) that
+         * linked this executable.
+         * @since 0.1.0.1
+         */
+        cobalt_u16_t linkerVersion;
+
+        /**
+         * @brief A sum total of the size of all code/text sections.
+         * @since 0.1.0.1
+         */
+        cobalt_u32_t codeSize;
+
+        /**
+         * @brief The sum total of the size of all initialized data
+         * sections.
+         * @since 0.1.0.1
+         */
+        cobalt_u32_t initializedDataSize;
+
+        /**
+         * @brief The sum total of the size of all uninitialized/BSS data
+         * sections.
+         * @since 0.1.0.1
+         */
+        cobalt_u32_t uninitializedDataSize;
+
+        /**
+         * @brief The address of the entrypoint relative to the image
+         * base.
+         * @since 0.1.0.1
+         */
+        cobalt_u32_t entrypointAddress;
+
+        /**
+         * @brief The address relative to the image base that will point to
+         * the code section when loaded into memory.
+         * @since 0.1.0.1
+         */
+        cobalt_u32_t codeBase;
+
+        /**
+         * @brief The preferred address for the image base when loaded into
+         * memory. This must be a multiple of 64K. By default, this will be
+         * 0x00400000. This is an EFI/Windows-specific field.
+         * @since 0.1.0.1
+         */
+        cobalt_u64_t imageBase;
+
+        /**
+         * @brief The byte alignment sections must be on when loaded into
+         * memory. This must be greater than or equal to the file
+         * alignment. By default, this is the page size, or 4KB. This is an
+         * EFI/Windows-specific field.
+         * @since 0.1.0.1
+         */
+        cobalt_u32_t sectionAlignment;
+
+        /**
+         * @brief The byte alignment to align raw sections of the file.
+         * This must be a power of 2 between 512 and 64K inclusive. By
+         * default, this is 512. This is an EFI/Windows-specific field.
+         * @since 0.1.0.1
+         */
+        cobalt_u32_t fileAlignment;
+
+        /**
+         * @brief The version (major | minor format) of the target
+         * operating system this file requires. We do not give a single
+         * damn about this--we're not running on an operating system this
+         * system will recognize. This is an EFI/Windows-specific field.
+         * @since 0.1.0.1
+         */
+        cobalt_u16_t operatingSystemVersion;
+
+        /**
+         * @brief The version (major | minor format) of the image. This is
+         * an EFI/Windows-specific field.
+         * @since 0.1.0.1
+         */
+        cobalt_u16_t imageVersion;
+
+        /**
+         * @brief The version (major | minor format) of the subsystem this
+         * image requires. We do not care--we're running on hardware. This
+         * is an EFI/Windows-specific field.
+         * @since 0.1.0.1
+         */
+        cobalt_u16_t subsystemVersion;
+
+        PAD(8); // Reserved. Technically must be zero--we don't care.
+
+        /**
+         * @brief The size of the image in bytes--including headers. This
+         * must be a multiple of sectionAligment. This is an
+         * EFI/Windows-specific field.
+         * @since 0.1.0.1
+         */
+        cobalt_u32_t imageSize;
+
+        /**
+         * @brief The size in bytes of the DOS header, PE header, and
+         * section headers rounded up to a multiple of the file alignment.
+         * This is an EFI/Windows-specific field.
+         * @since 0.1.0.1
+         */
+        cobalt_u32_t headerSize;
+
+        /**
+         * @brief The image file checksum. This is an EFI/Windows-specific
+         * field.
+         * @since 0.1.0.1
+         */
+        cobalt_u32_t checksum;
+
+        /**
+         * @brief The subsystem required to run this image. The only
+         * accepted subsystem for kernel executable in the bootloader is
+         * 10 (SUBSYSTEM_EFI_APPLICATION).
+         * @since 0.1.0.1
+         */
+        cobalt_subsystem_t subsystem;
+
+        /**
+         * @brief The characteristics specific to DLLs that this image has.
+         * Fortunately, we will never ever have DLLs, so I don't have to
+         * waste time documenting the enum that describes this.
+         * @since 0.1.0.1
+         */
+        cobalt_u16_t dllCharacteristics;
+
         struct
         {
-            cobalt_u32_t VirtualAddress;
-            cobalt_u32_t Size;
-        } DataDirectory[16];
-    } OptionalHeader;
+            /**
+             * @brief The size in bytes to reserve for the stack.
+             * @since 0.1.0.2
+             */
+            cobalt_u64_t reserve;
+            /**
+             * @brief The size in bytes of PHYSICAL memory to allocate to
+             * the image's stack.
+             * @since 0.1.0.2
+             */
+            cobalt_u64_t commit;
+        }
+        /**
+         * @brief Information about the stack requested for the image to be
+         * run.
+         * @since 0.1.0.2
+         */
+        stackInfo;
+
+        struct
+        {
+            /**
+             * @brief The size in bytes to reserve for the heap.
+             * @since 0.1.0.2
+             */
+            cobalt_u64_t reserve;
+            /**
+             * @brief The size in bytes of PHYSICAL memory to allocate to
+             * the image's heap.
+             * @since 0.1.0.2
+             */
+            cobalt_u64_t commit;
+        }
+        /**
+         * @brief Information about the heap requested for the image to be
+         * run.
+         * @since 0.1.0.2
+         */
+        heapInfo;
+
+        PAD(4); // Reserved, technically must be zero but we don't care.
+
+        /**
+         * @brief The count of data directory entries in the rest of the
+         * optional header.
+         * @since 0.1.0.1
+         */
+        cobalt_u32_t dataDirectoryLength;
+
+        struct
+        {
+            /**
+             * @brief The relative virtual address of the table.
+             * @since 0.1.0.1
+             */
+            cobalt_u32_t virtualAddress;
+            /**
+             * @brief The size of the table in bytes.
+             * @since 0.1.0.1
+             */
+            cobalt_u32_t size;
+        }
+        /**
+         * @brief An array containing 16 address and size pairs for the
+         * various information tables contained in the file (i.e.
+         * export/import tables, resource table, base relocation table,
+         * etc.). For information about the tables, see the PE Format
+         * reference in CREDITS and go to the "data directory reference"
+         * subsection.
+         * @since 0.1.0.1
+         */
+        dataDirectory[16];
+    }
+    /**
+     * @brief The "optional" COFF extension header that contains data
+     * required to execute the file. This, despite its name, is required in
+     * executable PE files.
+     * @since 0.1.0.1
+     */
+    optionalHeader;
 } cobalt_pe_header_t;
 
 #endif // COBALT_HEADERS_PE_H
