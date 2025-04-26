@@ -3,6 +3,9 @@
 ---
 
 ### The Cobalt Operating System
+![loc_badge](https://github.com/israfiel-a/cobalt/blob/badges/loc.svg)
+
+
 Cobalt is an incredibly small, incredibly mediocre [x86_64](https://en.wikipedia.org/wiki/X86-64) operating system building mostly in [C23](https://en.wikipedia.org/wiki/C23_(C_standard_revision)). It's solely built to give me a better understanding of how operating systems get from bare(ish) hardware to advanced, multilayered software, and is as such meant for no real application in particular. I was deeply inspired by the [amazing work](https://templeos.org/) of [Mr. Terry Davis](https://en.wikipedia.org/wiki/Terry_A._Davis), alongside some other indie OS developers such as [Andreas Kling and his team](https://en.wikipedia.org/wiki/SerenityOS).
 
 ---
