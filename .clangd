@@ -1,2 +1,0 @@
-CompileFlags:
-  Remove: [-mabi=ms, -maccumulate-outgoing-args] # Stop Clang from whinging.
