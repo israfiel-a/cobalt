@@ -1,7 +1,7 @@
 /*#####################################################################
 ## PROJECT LINKER SCRIPT
-## SINCE 0.1.0
-## UPDATED 0.1.0
+## SINCE 0.1.0.0
+## UPDATED 0.1.0.1
 ## This file contains the GCC linker script required to map the 
 ## project binary into a structure both the hardware and our software 
 ## can understand.

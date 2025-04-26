@@ -32,58 +32,6 @@ typedef struct
 
 typedef struct
 {
-    UINT32 Signature;
-    struct
-    {
-        UINT16 Machine;
-        UINT16 NumberOfSections;
-        UINT32 TimeDateStamp;
-        UINT32 PointerToSymbolTable;
-        UINT32 NumberOfSymbols;
-        UINT16 SizeOfOptionalHeader;
-        UINT16 Characteristics;
-    } FileHeader;
-    struct
-    {
-        UINT16 Magic; /* 0x20b */
-        UINT8 MajorLinkerVersion;
-        UINT8 MinorLinkerVersion;
-        UINT32 SizeOfCode;
-        UINT32 SizeOfInitializedData;
-        UINT32 SizeOfUninitializedData;
-        UINT32 AddressOfEntryPoint;
-        UINT32 BaseOfCode;
-        UINT64 ImageBase;
-        UINT32 SectionAlignment;
-        UINT32 FileAlignment;
-        UINT16 MajorOperatingSystemVersion;
-        UINT16 MinorOperatingSystemVersion;
-        UINT16 MajorImageVersion;
-        UINT16 MinorImageVersion;
-        UINT16 MajorSubsystemVersion;
-        UINT16 MinorSubsystemVersion;
-        UINT32 Win32VersionValue;
-        UINT32 SizeOfImage;
-        UINT32 SizeOfHeaders;
-        UINT32 CheckSum;
-        UINT16 Subsystem;
-        UINT16 DllCharacteristics;
-        UINT64 SizeOfStackReserve;
-        UINT64 SizeOfStackCommit;
-        UINT64 SizeOfHeapReserve;
-        UINT64 SizeOfHeapCommit;
-        UINT32 LoaderFlags;
-        UINT32 NumberOfRvaAndSizes;
-        struct
-        {
-            UINT32 VirtualAddress;
-            UINT32 Size;
-        } DataDirectory[16];
-    } OptionalHeader;
-} cobalt_pe_header_t;
-
-typedef struct
-{
     UINT8 Name[8];
     union
     {

@@ -3,6 +3,8 @@
  * @authors Israfil Argos (israfiel-a)
  * @brief The implementation of the primitive EFI printing routines
  * outlined in the EFI/Print.h file.
+ * @since 0.1.0.0
+ * @updated 0.1.0.1
  *
  * @copyright (c) 2025 Israfil Argos
  * This file is under the AGPLv3. For information on what that entails, see

@@ -5,7 +5,8 @@
  * printf-adjacent functions built specifically for use within the EFI
  * bootloader section of the operating system. All functions within this
  * file deal exclusively in UTF-16 strings.
- * @since 0.1.0
+ * @since 0.1.0.0
+ * @updated 0.1.0.1
  *
  * @copyright (c) 2025 Israfil Argos
  * This file is under the AGPLv3. For information on what that entails, see
@@ -23,7 +24,7 @@
 /**
  * @brief A simple output stream type as given to us by the EFI layer.
  * @authors Israfil Argos
- * @since 0.1.0
+ * @since 0.1.0.0
  */
 typedef SIMPLE_TEXT_OUTPUT_INTERFACE *COBALT_OUTPUT_STREAM;
 
@@ -32,7 +33,7 @@ typedef SIMPLE_INPUT_INTERFACE *COBALT_INPUT_STREAM;
 /**
  * @brief The EFI console output that Cobalt outputs all content to.
  * @authors Israfil Argos
- * @since 0.1.0
+ * @since 0.1.0.0
  */
 extern COBALT_OUTPUT_STREAM cobalt_conOut;
 
@@ -42,7 +43,7 @@ extern COBALT_INPUT_STREAM cobalt_conIn;
  * @brief Clear the screen. An incredibly simple function, this clears all
  * textual content from the console output.
  * @authors Israfil Argos
- * @since 0.1.0
+ * @since 0.1.0.0
  *
  * @return The success of the operation.
  */
@@ -54,7 +55,7 @@ EFI_STATUS Cobalt_PrimitiveClear(void);
  * follows, the allowed formatters are: `s`: wide string, `L`: integer,
  * `U`: unsigned integer.
  * @authors Israfil Argos
- * @since 0.1.0
+ * @since 0.1.0.0
  *
  * @param format The format string to interleave with the supplied
  * arguments. If this is simply a string, it is far more advised to just
@@ -74,7 +75,7 @@ EFI_STATUS Cobalt_PrimitivePrintfv(COBALT_WIDESTR format, va_list args);
  * follows, the allowed formatters are: `s`: wide string, `L`: integer,
  * `U`: unsigned integer.
  * @authors Israfil Argos
- * @since 0.1.0
+ * @since 0.1.0.0
  *
  * @param format The format string to interleave with the supplied
  * arguments. If this is simply a string, it is far more advised to just
@@ -92,7 +93,7 @@ EFI_STATUS Cobalt_PrimitivePrintf(COBALT_WIDESTR format, ...);
  * @brief A very, very simple function that pushes a string to the output
  * stream, without any sort of extra processing.
  * @authors Israfil Argos
- * @since 0.1.0
+ * @since 0.1.0.0
  *
  * @param string The string to output.
  * @return The status of the log operation.

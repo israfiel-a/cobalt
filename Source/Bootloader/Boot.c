@@ -4,7 +4,8 @@
  * @brief The boot entrypoint of the operating system, in which we handle
  * tbe most basic of setup before exiting the UEFI environment and entering
  * kernelmode.
- * @since 0.1.0
+ * @since 0.1.0.0
+ * @updated 0.1.0.1
  *
  * @copyright (c) 2025 Israfil Argos
  * This file is under the AGPLv3. For information on what that entails, see
@@ -15,7 +16,10 @@
 #include <Bootloader/EFI/Graphics.h>
 #include <Bootloader/EFI/Print.h>
 #include <Bootloader/Memory.h>
+
 #include <Headers/DOS.h>
+#include <Headers/PE.h>
+
 #include <efi.h>
 
 // should probably get rid of this to not waste memory when kernel invoked
@@ -157,14 +161,14 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
     if (kernelHeader.magicNumber != 0x5A4D) return -1;
 
     kernelFile->SetPosition(kernelFile,
-                            (uint64_t)kernelHeader.ntHeaderOffset);
+                            (uint64_t)kernelHeader.peHeaderOffset);
     size = sizeof(cobalt_pe_header_t);
     cobalt_pe_header_t kernelPEHeader;
     kernelFile->Read(kernelFile, &size, &kernelPEHeader);
 
-    uint64_t i, virt_size = 0,
-                sectionCount =
-                    (uint64_t)kernelPEHeader.FileHeader.NumberOfSections;
+    uint64_t i,
+        virt_size = 0,
+        sectionCount = (uint64_t)kernelPEHeader.coffHeader.sectionCount;
     size = 40 * sectionCount;
 
     cobalt_image_section_header_t *sectionHeaderTable;
