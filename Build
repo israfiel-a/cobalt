@@ -3,7 +3,7 @@
 ####################################################################
 ## PROJECT BUILD FILE
 ## SINCE 0.1.0.0
-## UPDATED 0.1.0.1
+## UPDATED 0.1.0.4
 ## This file contains the build script for entirely assembling the
 ## OS, both building and optionally running.
 ##
@@ -13,33 +13,183 @@
 ## https://www.gnu.org/licenses/agpl-3.0.en.html.
 ####################################################################
 
+#
+# The Binutils objcopy executable to use in the program.
+# Since 0.1.0.4
+#
+OBJCOPY=x86_64-elf-objcopy
+
+#
+# The CMake executable to use in the program.
+# Since 0.1.0.4
+#
+CMAKE=cmake
+
+#
+# The Coreutils DD executable to use in the program.
+# Since 0.1.0.4
+#
+DD=dd
+
+#
+# The MTools MFormat executable to use in the program.
+# Since 0.1.0.4
+#
+MFORMAT=mformat
+
+#
+# The MTools MMD executable to use in the program.
+# Since 0.1.0.4
+#
+MMD=mmd
+
+#
+# The MTools MCopy executable to use in the program.
+# Since 0.1.0.4
+#
+MCOPY=mcopy
+
+#
+# The directory to build the project into.
+# Since 0.1.0.4
+#
+BUILD_DIR=build
+
+#
+# Whether or not to run the project after compilation.
+# Since 0.1.0.4
+#
+RUN=NO
+
+#
+# The QEMU executable to use in the program.
+# Since 0.1.0.4
+#
+QEMU=qemu-system-x86_64
+
+#
+# This function simply prints a help message (possible options, 
+# usage, etc.) to the terminal and exits the program.
+# Israfil Argos
+# Since 0.1.0.4
+#
+# Arguments:
+#   N/A
+#
+print_help() {
+    echo "Usage: ./Build [options]"
+    echo "Options:"
+    echo "       --help: Print this help and exit."
+    echo "       --objcopy [value]: Set the Binutils objcopy executable to use."
+    echo "       --cmake [value]: Set the CMake executable to use."
+    echo "       --dd [value]: Set the Coreutils DD executable to use."
+    echo "       --mformat [value]: Set the MTools MFormat executable to run."
+    echo "       --mmd [value]: Set the MTools MMD executable to use."
+    echo "       --mcopy [value]: Set the MTools MCopy executable to use."
+    echo "       --build [value]: Set the directory to compile into."
+    echo "       --run: Run the OS after compilation. This requires sudo!"
+    echo "       --qemu [value]: Set the QEMU executable to run if --run is specified."
+    echo
+    exit 0
+}
+
+#
+# This function digests any provided command line arguments
+# and does what it must with them--extremely inefficently.
+# Israfil Argos
+# Since 0.1.0.4
+#
+# Arguments:
+#   1: Any argument provided to the program.
+#
+digest_arguments() {
+    if [ -z "$@" ]; then
+        echo No command line arguments provided.
+        return
+    fi
+
+    local ASSIGN_TO=""
+    for arg in "$1"; do
+        if [ ! -z "$ASSIGN_TO" ]; then
+            eval "$ASSIGN_TO=$arg"
+            continue
+        fi
+        case $arg in
+            --help)
+                print_help
+                ;;
+            --objcopy)
+                ASSIGN_TO=OBJCOPY
+                ;;
+            --cmake)
+                ASSIGN_TO=CMAKE
+                ;;
+            --dd)
+                ASSIGN_TO=DD
+                ;;
+            --mformat)
+                ASSIGN_TO=MFORMAT
+                ;;
+            --mmd)
+                ASSIGN_TO=MMD
+                ;;
+            --mcopy)
+                ASSIGN_TO=MCOPY
+                ;;
+            --build)
+                ASSIGN_TO=BUILD_DIR
+                ;;
+            --run)
+                RUN=YES
+                ;;
+            --qemu)
+                ASSIGN_TO=QEMU
+                ;;
+            *)
+                echo "Recieved unknown command line argument $arg."
+                ;;
+        esac
+    done
+}
+
+#
+# This function copies an executable from the elf64-x86-64 binary
+# format to the efi-app-x86-64 format, for use in the OS image.
+# Since 0.1.0.4
+#
+# Arguments:
+#   1: The input file.
+#   1: The output file's basename. ".efi" is tacked onto the end.
+#
+copy_object() {
+    local IFORMAT=elf64-x86-64
+    local OFORMAT=efi-app-x86-64
+    $OBJCOPY -I $IFORMAT -O $OFORMAT $1 $2.efi
+    echo "Translated $1 binary into an EFI PE."
+}
+
 echo # Begin with a newline to better distinguish from CMD.
+set -euf -o pipefail # Set the script to safe mode.
+# Make sure we're only running in the location of the script.
+cd "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Configure and build via CMake, with 9 threads allocated for work.
-if ! cmake -B build . --toolchain Toolchain/Toolchain.cmake        \
-    --no-warn-unused-cli 1>/dev/null; then
-    exit 255
-fi
-cd build
-if ! cmake --build . --parallel 9 1>/dev/null; then
-    exit 255
-fi
-echo "Compiled via CMake."
+echo "#############################################################"
+echo "## Running the CobaltOS build script."
+echo "## Copyright (c) 2025 Israfil Argos"
+echo "#############################################################"
+echo
 
-# Copy the executables produced by CMake into an EFI-compatible boot
-# file.
+digest_arguments "$@"
+
+$CMAKE -B $BUILD_DIR . --toolchain Toolchain/Toolchain.cmake
+cd $BUILD_DIR && $CMAKE --build . --parallel 9
+
 cd Cobalt
-x86_64-elf-objcopy -I elf64-x86-64 -O efi-app-x86_64               \
-    Cobalt-Bootloader BOOTX64.efi
-x86_64-elf-objcopy -I elf64-x86-64 -O efi-app-x86_64               \
-    Cobalt KERNEL.efi
-echo "Translated ELF binaries into EFI PEs."
+copy_object Cobalt-Bootloader BOOTX64
+copy_object Cobalt KERNEL
 
-####################################################################
-## CREATE BOOT IMAGE
-####################################################################
-dd if=/dev/zero of=Cobalt.img bs=1k count=1440 status=none
-echo Created boot image file. 
+dd if=/dev/zero of=Cobalt.img bs=1k count=1440
+echo Created OS image file. 
 
 mformat -i Cobalt.img -f 1440 ::
 mmd -i Cobalt.img ::/EFI && mmd -i Cobalt.img ::/EFI/BOOT
@@ -49,13 +199,11 @@ mcopy -i Cobalt.img BOOTX64.efi ::/EFI/BOOT
 mcopy -i Cobalt.img KERNEL.efi ::
 echo "Added code to boot image."
 
+echo
 echo "Finished build. Thank you :)"
 echo
 
-####################################################################
-## OPTIONALLY RUN OS
-####################################################################
-if [ "$1" == "run" ]; then
+if [ "$RUN" == "YES" ]; then
     OVMF_FORMAT="if=pflash,format=raw"
     OVMF_CODE_PATH=/usr/share/edk2/x64/OVMF_CODE.4m.fd
     OVMF_VARS_PATH=/usr/share/edk2/x64/OVMF_VARS.4m.fd
