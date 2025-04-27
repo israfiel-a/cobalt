@@ -8,6 +8,7 @@ on:
             - '|badges'
 permissions:
     contents: write
+name: Generate Badges
 jobs:
     generate_loc_badge:
         name: LOC Badge
