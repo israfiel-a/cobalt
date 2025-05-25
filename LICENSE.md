@@ -1,4 +1,4 @@
-![top_banner](https://github.com/israfiel-a/israfiel-a/blob/main/cobalt-banner.jpg)
+![top_banner](./.github/banner.jpg)
 
 ---
 
@@ -242,4 +242,4 @@ If your software can interact with users remotely through a computer network, yo
 
 You should also get your employer (if you work as a programmer) or school, if any, to sign a "copyright disclaimer" for the program, if necessary. For more information on this, and how to apply and follow the GNU AGPL, see <https://www.gnu.org/licenses/>.
 
-![bottom_banner](https://github.com/israfiel-a/israfiel-a/blob/main/cobalt-banner.jpg)
+![bottom_banner](./.github/banner.jpg)

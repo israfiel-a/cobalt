@@ -20,11 +20,11 @@ set(CMAKE_LINKER x86_64-elf-ld)
 set(CMAKE_OBJCOPY x86_64-elf-objcopy)
 
 set(CMAKE_C_COMPILER_TARGET x86_64-none-elf)
-set(CMAKE_C_FLAGS "-ffreestanding -fpic -fno-stack-protector       \
-    -mno-stack-arg-probe -fshort-wchar -mno-red-zone -Wall -Wextra \
-    -Werror -Wpedantic -Ofast -mgeneral-regs-only -mabi=ms         \
-    -nostdlib -march=x86-64 -mtune=native -flto -s                 \
-    -fno-asynchronous-unwind-tables                                \
+set(CMAKE_C_FLAGS_RELEASE "-ffreestanding -fpic                    \
+    -fno-stack-protector -mno-stack-arg-probe -fshort-wchar        \
+    -mno-red-zone -Wall -Wextra -Werror -Wpedantic -Ofast          \
+    -mgeneral-regs-only -mabi=ms -nostdlib -march=x86-64           \
+    -mtune=native -flto -s -fno-asynchronous-unwind-tables         \
     -Wno-gnu-zero-variadic-macro-arguments")
 set(CMAKE_EXE_LINKER_FLAGS "LINKER:-Bsymbolic LINKER:-znocombreloc \
     LINKER:-flto LINKER:-shared                                    \

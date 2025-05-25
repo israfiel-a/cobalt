@@ -1,4 +1,4 @@
-![top_banner](https://github.com/israfiel-a/israfiel-a/blob/main/cobalt-banner.jpg)
+![top_banner](./.github/banner.jpg)
 
 ---
 
@@ -24,4 +24,4 @@ Much love, and welcome to Cobalt.
 
 ---
 
-![bottom_banner](https://github.com/israfiel-a/israfiel-a/blob/main/cobalt-banner.jpg)
+![bottom_banner](./.github/banner.jpg)

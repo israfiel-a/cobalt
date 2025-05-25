@@ -3,7 +3,7 @@
 ####################################################################
 ## PROJECT BUILD FILE
 ## SINCE 0.1.0.0
-## UPDATED 0.1.0.4
+## UPDATED 0.1.0.5
 ## This file contains the build script for entirely assembling the
 ## OS, both building and optionally running.
 ##
@@ -62,6 +62,12 @@ BUILD_DIR=build
 RUN=NO
 
 #
+# Whether or not QEMU should wait for a GDB connection.
+# Since 0.1.0.5
+#
+WITH_GDB=NO
+
+#
 # The QEMU executable to use in the program.
 # Since 0.1.0.4
 #
@@ -89,6 +95,7 @@ print_help() {
     echo "       --build [value]: Set the directory to compile into."
     echo "       --run: Run the OS after compilation. This requires sudo!"
     echo "       --qemu [value]: Set the QEMU executable to run if --run is specified."
+    echo "       --gdb: Force QEMU to wait for a GDB connection before executing."
     echo
     exit 0
 }
@@ -109,7 +116,7 @@ digest_arguments() {
     fi
 
     local ASSIGN_TO=""
-    for arg in "$1"; do
+    for arg in "$@"; do
         if [ ! -z "$ASSIGN_TO" ]; then
             eval "$ASSIGN_TO=$arg"
             continue
@@ -144,6 +151,9 @@ digest_arguments() {
                 ;;
             --qemu)
                 ASSIGN_TO=QEMU
+                ;;
+            --gdb)
+                WITH_GDB=YES
                 ;;
             *)
                 echo "Recieved unknown command line argument $arg."
@@ -210,8 +220,18 @@ if [ "$RUN" == "YES" ]; then
     OVMF_CODE="$OVMF_FORMAT,unit=0,file=$OVMF_CODE_PATH,readonly=on"
     OVMF_VARS="$OVMF_FORMAT,unit=1,file=$OVMF_VARS_PATH"
 
-    sudo qemu-system-x86_64 -machine q35 -m 256 -smp 2 -net none   \
-        -global driver=cfi.pflash01,property=secure,value=on       \
-        -drive $OVMF_CODE -drive $OVMF_VARS                        \
-        -drive if=ide,format=raw,file=Cobalt.img
+    if [ "$WITH_GDB" == "YES" ]; then
+        ( sudo qemu-system-x86_64 -s -S -machine q35 -m 256 -smp 2     \
+            -net none -global                                          \
+            driver=cfi.pflash01,property=secure,value=on               \
+            -vga cirrus -monitor stdio -serial tcp::666,server         \
+            -drive $OVMF_CODE -drive $OVMF_VARS                        \
+            -drive if=ide,format=raw,file=Cobalt.img & )
+        gdb BOOTX64.efi
+    else
+        sudo qemu-system-x86_64 -machine q35 -m 256 -smp 2 -net none   \
+            -global driver=cfi.pflash01,property=secure,value=on       \
+            -drive $OVMF_CODE -drive $OVMF_VARS                        \
+            -drive if=ide,format=raw,file=Cobalt.img
+    fi
 fi

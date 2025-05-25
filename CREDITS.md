@@ -1,4 +1,4 @@
-![top_banner](https://github.com/israfiel-a/israfiel-a/blob/main/cobalt-banner.jpg)
+![top_banner](./.github/banner.jpg)
 
 ---
 
@@ -14,4 +14,4 @@ https://github.com/KunYi/Simple-UEFI-Bootloader
 
 ---
 
-![bottom_banner](https://github.com/israfiel-a/israfiel-a/blob/main/cobalt-banner.jpg)
+![bottom_banner](./.github/banner.jpg)

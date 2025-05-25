@@ -1,7 +1,7 @@
 ####################################################################
 ## PROJECT CONFIGURATION FILE
 ## SINCE 0.1.0.0
-## UPDATED 0.1.0.4
+## UPDATED 0.1.0.5
 ## This file contains the CMake script for compiling and linking
 ## the OS.
 ##
@@ -12,7 +12,7 @@
 ####################################################################
 
 cmake_minimum_required(VERSION 4.0.1 FATAL_ERROR)
-project("Cobalt" LANGUAGES C VERSION 0.1.0.4 DESCRIPTION 
+project("Cobalt" LANGUAGES C VERSION 0.1.0.5 DESCRIPTION 
     "A toy text-based x86_64 operating system written in C.")
 
 if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)

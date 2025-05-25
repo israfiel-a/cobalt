@@ -114,6 +114,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
     if (EFI_ERROR(openProtocolStatus))
     {
         Cobalt_PrimitivePuts(L"Failed to open image load protocol." NL);
+        waitKey(10, SystemTable->BootServices);
         return openProtocolStatus;
     }
     Cobalt_PrimitivePuts(L"Opened image load protocol." NL);
@@ -125,27 +126,28 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
         &filesystem, &root);
     if (EFI_ERROR(filesystemStatus))
     {
-        waitKey(255, SystemTable->BootServices);
+        waitKey(10, SystemTable->BootServices);
         return filesystemStatus;
     }
 
-    EFI_FILE *kernelFile;
+    cobalt_efi_file_t *kernelFile;
     EFI_STATUS kernelFileStatus =
         Cobalt_OpenFile(root, L"\\KERNEL.efi", &kernelFile);
     if (EFI_ERROR(kernelFileStatus))
     {
-        waitKey(255, SystemTable->BootServices);
+        waitKey(10, SystemTable->BootServices);
         return kernelFileStatus;
     }
-
-    UINTN size = sizeof(cobalt_dos_header_t);
     cobalt_dos_header_t kernelHeader;
-    kernelFile->Read(kernelFile, &size, &kernelHeader);
-    if (kernelHeader.magicNumber != 0x5A4D) return -1;
+    EFI_STATUS dosHeaderStatus =
+        Cobalt_ReadDOSHeader(kernelFile, &kernelHeader);
+    if (EFI_ERROR(dosHeaderStatus))
+    {
+        waitKey(10, SystemTable->BootServices);
+        return dosHeaderStatus;
+    }
 
-    kernelFile->SetPosition(kernelFile,
-                            (uint64_t)kernelHeader.peHeaderOffset);
-    size = sizeof(cobalt_pe_header_t);
+    UINTN size = sizeof(cobalt_pe_header_t);
     cobalt_pe_header_t kernelPEHeader;
     kernelFile->Read(kernelFile, &size, &kernelPEHeader);
 
@@ -213,7 +215,10 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
                          (EFI_PHYSICAL_ADDRESS *)sectionAddress);
     }
     SystemTable->BootServices->FreePool(sectionHeaderTable);
-    kernelFile->Close(kernelFile);
+    // if (EFI_ERROR(Cobalt_CloseFile(kernelFile))) return -1;
+    // if (EFI_ERROR(Cobalt_CloseFilesystem(
+    //         ImageHandle, SystemTable->BootServices, filesystem, root)))
+    //     return -1;
 
 #define IMAGE_DIRECTORY_ENTRY_BASERELOC 5
     if ((kernelAllocatedMemory |=
@@ -331,14 +336,54 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle,
     }
 
     Cobalt_PrimitivePuts(L"Jumping to kernel...");
-
     EFI_STATUS exitStatus = SystemTable->BootServices->ExitBootServices(
         ImageHandle, memoryMapKey);
     if (EFI_ERROR(exitStatus))
     {
+        exitStatus = SystemTable->BootServices->FreePool(memoryMap);
+        if (EFI_ERROR(exitStatus)) // Error! Wouldn't be safe to continue.
+        {
+            Cobalt_PrimitivePrintf(
+                L"Error freeing memory map pool from failed "
+                L"ExitBootServices. Code: %U." NL,
+                exitStatus);
+            waitKey(10, SystemTable->BootServices);
+            return exitStatus;
+        }
+
+        memoryMap = nullptr;
+        exitStatus = SystemTable->BootServices->GetMemoryMap(
+            &memoryMapSize, memoryMap, &memoryMapKey,
+            &memoryMapDescriptorSize, &memoryMapDescriptorVersion);
+        if (exitStatus == EFI_BUFFER_TOO_SMALL)
+        {
+            memoryMapSize += memoryMapDescriptorSize;
+            exitStatus = SystemTable->BootServices->AllocatePool(
+                EfiLoaderData, memoryMapSize, (void **)&memoryMap);
+            if (EFI_ERROR(
+                    exitStatus)) // Error! Wouldn't be safe to continue.
+            {
+                Cobalt_PrimitivePrintf(
+                    L"Error getting memory map. Code: %U." NL, exitStatus);
+                waitKey(10, SystemTable->BootServices);
+                return exitStatus;
+            }
+            exitStatus = SystemTable->BootServices->GetMemoryMap(
+                &memoryMapSize, memoryMap, &memoryMapKey,
+                &memoryMapDescriptorSize, &memoryMapDescriptorVersion);
+        }
+
+        exitStatus = SystemTable->BootServices->ExitBootServices(
+            ImageHandle, memoryMapKey);
+    }
+
+    // This applies to both the simple and larger versions of the above.
+    if (EFI_ERROR(exitStatus))
+    {
         Cobalt_PrimitivePrintf(
-            L"Failed to exit boot services. Code: %U." NL, exitStatus);
-        waitKey(255, SystemTable->BootServices);
+            L"Could not exit boot services. Code: %U." NL, exitStatus);
+        exitStatus = SystemTable->BootServices->FreePool(memoryMap);
+        waitKey(10, SystemTable->BootServices);
         return exitStatus;
     }
 
