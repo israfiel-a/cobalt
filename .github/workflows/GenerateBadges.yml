@@ -6,8 +6,15 @@ on:
             - '*/*'
             - '**'
             - '|badges'
+        paths-ignore:
+            - '.github/**'
+            - 'LICENSE.md'
+            - 'README.md'
+            - 'CREDITS.md'
+            - '.**'
 permissions:
     contents: write
+name: Generate Badges
 jobs:
     generate_loc_badge:
         name: LOC Badge
